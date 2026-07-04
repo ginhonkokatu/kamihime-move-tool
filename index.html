@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>神姫ムーブ作成ツール</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h1>神姫ムーブ作成ツール-by銀本枯渇の人</h1>
+
+<div id="party">
+    <div id="left-column">
+
+<div class="character">
+    <h2>英霊</h2>
+    <input type="text" id="hero" placeholder="英霊名">
+
+<div class="buttons">
+     <button
+          onclick="addAbility(this, 'hero', 1)"
+          oncontextmenu="changeColor(this); return false;">
+          1アビ
+     </button>
+
+     <button
+         onclick="addAbility(this, 'hero', 2)"
+         oncontextmenu="changeColor(this); return false;">
+         2アビ
+     </button>
+
+     <button
+         onclick="addAbility(this, 'hero', 3)"
+         oncontextmenu="changeColor(this); return false;">
+         3アビ
+     </button>
+
+     <button
+         onclick="addAbility(this, 'hero', 4)"
+         oncontextmenu="changeColor(this); return false;">
+         4アビ
+     </button>
+
+  </div>
+</div>
+
+<div class="character">
+    <h2>神姫1</h2>
+    <input type="text" id="char1" placeholder="キャラ名">
+
+     <div class="buttons">
+<button
+    onclick="addAbility(this, 'char1', 1)"
+    oncontextmenu="changeColor(this); return false;">
+    1アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char1', 2)"
+    oncontextmenu="changeColor(this); return false;">
+    2アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char1', 3)"
+    oncontextmenu="changeColor(this); return false;">
+    3アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char1', 4)"
+    oncontextmenu="changeColor(this); return false;">
+    4アビ
+</button>
+  </div>
+</div>
+
+<div class="character">
+    <h2>神姫2</h2>
+
+    <input type="text" id="char2" placeholder="キャラ名">
+
+    <div class="buttons">
+<button
+    onclick="addAbility(this, 'char2', 1)"
+    oncontextmenu="changeColor(this); return false;">
+    1アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char2', 2)"
+    oncontextmenu="changeColor(this); return false;">
+    2アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char2', 3)"
+    oncontextmenu="changeColor(this); return false;">
+    3アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char2', 4)"
+    oncontextmenu="changeColor(this); return false;">
+    4アビ
+</button>
+
+    </div>
+</div>
+    </div>
+
+    <div id="right-column">
+
+<div class="character">
+    <h2>神姫3</h2>
+
+    <input type="text" id="char3" placeholder="キャラ名">
+
+    <div class="buttons">
+<button
+    onclick="addAbility(this, 'char3', 1)"
+    oncontextmenu="changeColor(this); return false;">
+    1アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char3', 2)"
+    oncontextmenu="changeColor(this); return false;">
+    2アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char3', 3)"
+    oncontextmenu="changeColor(this); return false;">
+    3アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char3', 4)"
+    oncontextmenu="changeColor(this); return false;">
+    4アビ
+</button>
+    </div>
+</div>
+
+<div class="character">
+    <h2>神姫4</h2>
+
+    <input type="text" id="char4" placeholder="キャラ名">
+
+    <div class="buttons">
+<button
+    onclick="addAbility(this, 'char4', 1)"
+    oncontextmenu="changeColor(this); return false;">
+    1アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char4', 2)"
+    oncontextmenu="changeColor(this); return false;">
+    2アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char4', 3)"
+    oncontextmenu="changeColor(this); return false;">
+    3アビ
+</button>
+
+<button
+    onclick="addAbility(this, 'char4', 4)"
+    oncontextmenu="changeColor(this); return false;">
+    4アビ
+</button>
+    </div>
+</div>
+
+<div class="character">
+    <h2>幻獣</h2>
+
+    <div class="buttons">
+        <button onclick="addFixedSummon('カイザー')">カイザー</button>
+        <button onclick="addFixedSummon('カタス')">カタス</button>
+        <button onclick="addFixedSummon('鬼')">鬼</button>
+        <button onclick="addFixedSummon('鬼装')">鬼装</button>
+        <button onclick="addFixedSummon('レギオン')">レギオン</button>
+    </div>
+
+    <hr>
+
+    <div class="summon-row">
+        <input type="text" id="summon1" placeholder="任意の幻獣名">
+        <button onclick="addSummon('summon1')">召喚</button>
+    </div>
+
+    <div class="summon-row">
+        <input type="text" id="summon2" placeholder="任意の幻獣名">
+        <button onclick="addSummon('summon2')">召喚</button>
+    </div>
+
+    <div class="summon-row">
+        <input type="text" id="summon3" placeholder="任意の幻獣名">
+        <button onclick="addSummon('summon3')">召喚</button>
+    </div>
+</div>
+
+    </div>
+</div>
+
+<hr>
+
+<div id="control-buttons">
+    <button onclick="attack(true)">バーストON<br>攻撃</button>
+    <button onclick="attack(false)">バーストOFF<br>攻撃</button>
+    <button onclick="undo()">1つ戻る</button>
+    <button onclick="resetLog()">履歴全消去</button>
+    <button onclick="saveData()">💾 保存</button>
+    <button onclick="document.getElementById('fileInput').click()">📂 読込</button>
+</div>
+
+<input
+    type="file"
+    id="fileInput"
+    accept=".json"
+    onchange="loadData(event)"
+    style="display:none">
+
+<br><br>
+
+<hr>
+
+<h2>行動履歴</h2>
+
+<div id="log-container">
+    <div id="log"></div>
+</div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
