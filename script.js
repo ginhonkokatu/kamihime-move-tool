@@ -5,6 +5,10 @@ let nextId = 1;
 // 現在のターン
 let currentTurn = 1;
 
+// 過去ターン編集中なら、そのターン番号を保存
+// nullなら通常入力
+let editingTurn = null;
+
 // 行動を保存するリスト
 let moves = [];
 
@@ -13,9 +17,12 @@ let draggedMoveId = null;
 // 行動追加
 function addMove(type, name, color = "") {
 
+    // 過去ターン編集中ならそのターン、通常時は現在ターン
+    const targetTurn = editingTurn ?? currentTurn;
+
     moves.push({
         id: Date.now() + Math.random(),
-        turn: currentTurn,
+        turn: targetTurn,
         type: type,
         text: name,
         color: color,
@@ -40,10 +47,46 @@ function addAbility(button, id, number) {
 
 }
 
+function startTurnEdit(turn) {
+
+    editingTurn = Number(turn);
+
+    updateLog();
+
+}
+
+function endTurnEdit() {
+
+    editingTurn = null;
+
+    updateLog();
+
+}
+
 // 行動履歴を画面に表示
 function updateLog() {
 
     log.innerHTML = "";
+
+    const turnEditStatus = document.getElementById("turnEditStatus");
+    const turnEditText = document.getElementById("turnEditText");
+
+    if (turnEditStatus && turnEditText) {
+
+        if (editingTurn !== null) {
+
+            turnEditStatus.style.display = "block";
+
+            turnEditText.textContent =
+                `編集中：ターン${editingTurn} ／ 通常の進行：ターン${currentTurn}`;
+
+        } else {
+
+            turnEditStatus.style.display = "none";
+
+        }
+
+    }
 
     // アビリティ累計回数
     let abilityCount = {};
@@ -64,7 +107,7 @@ function updateLog() {
     }
 
     // ターンごとに表示
-    for (let turn in turnMap) {
+    for (let turn of Object.keys(turnMap).sort((a, b) => Number(a) - Number(b))) {
 
         let turnAbilityCount = 0;
 
@@ -126,18 +169,31 @@ function updateLog() {
 
         // HTMLが完成した後に表示
         log.innerHTML += `
-            <div class="turn">
-                <h3>ターン${turn}（アビ${turnAbilityCount}回）
-                    <br>
-                     🔵${colorCount.blue}
-                     🔴${colorCount.red}
-                     🟡${colorCount.yellow}
-                     🟢${colorCount.green}
-                     ⚫${colorCount.other}
-                </h3>
-                ${turnHtml}
-            </div>
-        `;
+    <div class="turn">
+
+        <h3>
+            ターン${turn}（アビ${turnAbilityCount}回）
+
+            <br>
+
+            🔵${colorCount.blue}
+            🔴${colorCount.red}
+            🟡${colorCount.yellow}
+            🟢${colorCount.green}
+            ⚫${colorCount.other}
+
+        </h3>
+
+        <button
+            class="turn-edit-button"
+            onclick="startTurnEdit(${turn})">
+            ＋ このターンに追加
+        </button>
+
+        ${turnHtml}
+
+    </div>
+`;
 
     }
 
@@ -169,6 +225,7 @@ function resetLog() {
 
     moves = [];
     currentTurn = 1;
+    editingTurn = null;
 
     updateLog();
 
@@ -182,7 +239,10 @@ function attack(isBurst) {
         addMove("attack", "バーストOFF攻撃");
     }
 
-    currentTurn++;
+    // 通常入力のときだけ次のターンへ
+    if (editingTurn === null) {
+        currentTurn++;
+    }
 
 }
 
@@ -294,6 +354,7 @@ function loadData(event) {
 
         currentTurn = data.currentTurn;
         moves = data.moves;
+        editingTurn = null;
 
         document.getElementById("hero").value = data.hero;
         document.getElementById("char1").value = data.char1;
