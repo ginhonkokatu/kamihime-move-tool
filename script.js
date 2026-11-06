@@ -13,6 +13,89 @@ let editingTurn = null;
 let moves = [];
 
 let draggedMoveId = null;
+let editorAction = null;
+
+function escapeHtml(value) {
+    return String(value ?? "").replace(/[&<>"']/g, ch => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[ch]);
+}
+
+function getAbilityInfo(characterId, number) {
+    const label = document.getElementById(characterId).value.trim() ||
+        ({ hero: "英霊", char1: "神姫1", char2: "神姫2", char3: "神姫3", char4: "神姫4" })[characterId];
+    return { text: `${label}${number}アビ`, characterId, abilityNumber: Number(number) };
+}
+
+function updateCounter() {
+    const turn = editingTurn ?? currentTurn;
+    const actions = moves.filter(move => Number(move.turn) === turn && move.type === "ability");
+    const counts = { blue: 0, red: 0, yellow: 0, green: 0, other: 0 };
+    actions.forEach(move => {
+        const color = move.color || "other";
+        counts[color in counts ? color : "other"]++;
+    });
+    document.getElementById("counter-turn").textContent = `ターン${turn}${editingTurn !== null ? "（編集中）" : ""}`;
+    document.getElementById("counter-total").textContent = `アビ使用 ${actions.length}回`;
+    document.getElementById("counter-colors").textContent =
+        `青${counts.blue} / 赤${counts.red} / 黄${counts.yellow} / 緑${counts.green} / 他${counts.other}`;
+}
+
+function openAbilityEditor(mode, id, turn) {
+    const dialog = document.getElementById("ability-editor");
+    const move = moves.find(item => item.id === id);
+    if (mode === "edit" && (!move || move.type !== "ability")) return;
+    const targetTurn = mode === "append" ? Number(turn) : Number(move?.turn);
+    editorAction = { mode, id, turn: targetTurn };
+    document.getElementById("editor-title").textContent = mode === "edit" ? "アビリティを修正" : "アビリティを挿入";
+    document.getElementById("editor-character").value = move?.characterId || "hero";
+    document.getElementById("editor-number").value = String(move?.abilityNumber || 1);
+    document.getElementById("editor-color").value = move?.color || "";
+    dialog.showModal();
+}
+
+document.getElementById("ability-editor-form").addEventListener("submit", event => {
+    event.preventDefault();
+    if (!editorAction) return;
+    const { mode, id, turn } = editorAction;
+    const characterId = document.getElementById("editor-character").value;
+    const number = Number(document.getElementById("editor-number").value);
+    const color = document.getElementById("editor-color").value;
+    const info = getAbilityInfo(characterId, number);
+    const current = moves.findIndex(move => move.id === id);
+    if (mode === "edit" && current >= 0) {
+        Object.assign(moves[current], info, {color});
+    } else if (mode === "insert" && current >= 0) {
+        moves.splice(current, 0, { id: Date.now() + Math.random(), turn,
+            type: "ability", ...info, color, memo: "" });
+    } else if (mode === "append") {
+        const lastIndex = moves.map(move => Number(move.turn)).lastIndexOf(turn);
+        moves.splice(lastIndex + 1, 0, { id: Date.now() + Math.random(), turn,
+            type: "ability", ...info, color, memo: "" });
+    }
+    editorAction = null;
+    document.getElementById("ability-editor").close();
+    updateLog();
+});
+
+// 長押しで色変更（スマホ）。長押し直後のクリックは入力として扱わない。
+document.querySelectorAll('.character .buttons button[oncontextmenu]').forEach(button => {
+    let longPressTimer = null;
+    let longPressed = false;
+    button.addEventListener('pointerdown', event => {
+        if (event.pointerType === 'mouse') return;
+        longPressed = false;
+        clearTimeout(longPressTimer);
+        longPressTimer = setTimeout(() => { changeColor(button); longPressed = true; }, 550);
+    });
+    const cancel = () => clearTimeout(longPressTimer);
+    button.addEventListener('pointerup', cancel);
+    button.addEventListener('pointercancel', cancel);
+    button.addEventListener('pointerleave', cancel);
+    button.addEventListener('click', event => {
+        if (longPressed) { event.stopImmediatePropagation(); event.preventDefault(); longPressed = false; }
+    }, true);
+});
 
 // 行動追加
 function addMove(type, name, color = "") {
@@ -39,11 +122,11 @@ function addAbility(button, id, number) {
 
     const color = button.dataset.color || "";
 
-    addMove(
-      "ability",
-      name + number + "アビ",
-      button.dataset.color || ""
-    );
+    const info = getAbilityInfo(id, number);
+    const targetTurn = editingTurn ?? currentTurn;
+    moves.push({ id: Date.now() + Math.random(), turn: targetTurn,
+        type: "ability", ...info, color: button.dataset.color || "", memo: "" });
+    updateLog();
 
 }
 
@@ -87,6 +170,8 @@ function updateLog() {
         }
 
     }
+
+    updateCounter();
 
     // アビリティ累計回数
     let abilityCount = {};
@@ -143,6 +228,12 @@ function updateLog() {
 
             }
 
+            text = escapeHtml(text);
+            // 同じアビの通算使用回数とは別に、このターン内で何発目かを表示
+            const turnAbilityOrder = move.type === "ability"
+                ? `<span class="turn-ability-order">${turnAbilityCount}回目</span>`
+                : "";
+            const memoText = escapeHtml(move.memo || "");
                   return `
                     <div
     class="move ${move.color}"
@@ -156,12 +247,14 @@ function updateLog() {
 
                       <span class="drag-handle">☰</span>
 
-                         <span class="move-text">${text}</span>
+                         <span class="move-text">${text}${turnAbilityOrder}</span>
 
-                         <button onclick="editMemo(${move.id})">📝</button>
-                         <button onclick="deleteMove(${move.id})">❌</button>
+                         <button class="edit-action" onclick="openAbilityEditor('insert', ${move.id})" title="この前にアビを挿入">＋</button>
+                         ${move.type === 'ability' ? `<button class="edit-action" onclick="openAbilityEditor('edit', ${move.id})" title="アビを修正">編集</button>` : ''}
+                         <button onclick="editMemo(${move.id})" title="メモ">📝</button>
+                         <button onclick="deleteMove(${move.id})" title="削除">×</button>
 
-                          ${move.memo ? `<div class="memo">${move.memo}</div>` : ""}
+                          ${move.memo ? `<div class="memo">${memoText}</div>` : ""}
                  </div>
                  `;
 
@@ -186,8 +279,8 @@ function updateLog() {
 
         <button
             class="turn-edit-button"
-            onclick="startTurnEdit(${turn})">
-            ＋ このターンに追加
+            onclick="openAbilityEditor('append', 0, ${turn})">
+            ＋ 末尾にアビを追加
         </button>
 
         ${turnHtml}
@@ -242,6 +335,7 @@ function attack(isBurst) {
     // 通常入力のときだけ次のターンへ
     if (editingTurn === null) {
         currentTurn++;
+        updateLog();
     }
 
 }
@@ -352,8 +446,8 @@ function loadData(event) {
 
         const data = JSON.parse(e.target.result);
 
-        currentTurn = data.currentTurn;
-        moves = data.moves;
+        currentTurn = Number(data.currentTurn) || 1;
+        moves = Array.isArray(data.moves) ? data.moves : [];
         editingTurn = null;
 
         document.getElementById("hero").value = data.hero;
@@ -388,6 +482,7 @@ buttons.forEach((button, index) => {
     };
 
     reader.readAsText(file);
+    event.target.value = "";
 
 }
 
@@ -469,3 +564,4 @@ function dragLeave(event) {
     event.currentTarget.classList.remove("drag-over");
 
 }
+updateLog();

@@ -103,6 +103,14 @@ input {
     flex: 1;
 }
 
+/* そのターン中に何発目のアビリティかを行動名の下に表示 */
+.turn-ability-order {
+    display: block;
+    margin-top: 3px;
+    font-size: 12px;
+    color: #454545;
+}
+
 .drag-handle {
     width: 20px;
     flex: 0 0 20px;
@@ -246,3 +254,21 @@ input {
     text-align: center;
     line-height: 1.4;
 }
+/* 操作説明・ターン内カウント・編集ダイアログ */
+#usage-help { background:#fff; border:1px solid #ccc; border-radius:8px; padding:12px 16px; margin:16px 0; }
+#usage-help summary { cursor:pointer; font-weight:700; }
+.help-content { line-height:1.6; font-size:14px; }
+#turn-ability-counter { position:sticky; top:0; z-index:90; display:flex; flex-wrap:wrap; align-items:center; gap:12px; padding:12px 16px; border:2px solid #5689bf; border-radius:8px; background:#edf6ff; }
+#counter-total { font-size:20px; }
+#counter-colors { color:#333; font-size:13px; }
+.move .edit-action { width:auto; min-width:26px; padding:0 4px; border:1px solid #aaa; border-radius:4px; font-size:12px; background:#fff; }
+.move { flex-wrap:wrap; }
+.move .memo { width:100%; overflow-wrap:anywhere; }
+#ability-editor { border:1px solid #aaa; border-radius:10px; padding:22px; width:min(340px, 90vw); box-sizing:border-box; }
+#ability-editor::backdrop { background:rgba(0,0,0,.45); }
+#ability-editor form { display:flex; flex-direction:column; gap:14px; }
+#ability-editor label { display:flex; flex-direction:column; gap:5px; font-weight:600; }
+#ability-editor select { width:100%; min-height:38px; font-size:16px; }
+#ability-editor .editor-actions { display:flex; justify-content:flex-end; gap:8px; }
+#ability-editor .editor-actions button { width:auto; min-width:90px; }
+.character .buttons button { touch-action:manipulation; }

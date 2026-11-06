@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>神姫ムーブ作成ツール</title>
 
     <link rel="stylesheet" href="style.css">
@@ -208,6 +209,18 @@
     </div>
 </div>
 
+<details id="usage-help">
+    <summary>使い方・操作方法</summary>
+    <div class="help-content">
+        <p>① 英霊・神姫の名前を入力し、アビリティボタンを押すと行動が追加されます。幻獣召喚も入力できます。</p>
+        <p>② アビリティの色変更：PCではボタンを右クリック、スマホでは長押しします。</p>
+        <p>③ 攻撃ボタンを押すと次のターンへ進みます。各ターンのアビ使用回数は自動計算されます。</p>
+        <p>④ 各行動の「＋」で直前にアビリティを挿入、「編集」で内容を修正できます。☰ をドラッグすると同じターン内で並び替えできます。</p>
+        <p>⑤ 📝でメモ、×で削除。保存・読込でJSONファイルとしてムーブを保存・復元できます。</p>
+        <p>※ 神姫PROJECTの非公式ファンツールです。β版のため、不具合やご要望があればお知らせください。</p>
+    </div>
+</details>
+
 <hr>
 
 <div id="control-buttons">
@@ -240,6 +253,12 @@
 
 </div>
 
+<div id="turn-ability-counter" role="status" aria-live="polite">
+    <span id="counter-turn">ターン1</span>
+    <strong id="counter-total">アビ使用 0回</strong>
+    <span id="counter-colors"></span>
+</div>
+
 <h2>行動履歴</h2>
 
 <div id="log-container">
@@ -247,6 +266,38 @@
 </div>
 
 </div>
+
+<dialog id="ability-editor">
+    <form id="ability-editor-form" method="dialog">
+        <h3 id="editor-title">アビリティを挿入</h3>
+        <label>キャラクター
+            <select id="editor-character">
+                <option value="hero">英霊</option>
+                <option value="char1">神姫1</option>
+                <option value="char2">神姫2</option>
+                <option value="char3">神姫3</option>
+                <option value="char4">神姫4</option>
+            </select>
+        </label>
+        <label>アビリティ
+            <select id="editor-number">
+                <option value="1">1アビ</option><option value="2">2アビ</option>
+                <option value="3">3アビ</option><option value="4">4アビ</option>
+            </select>
+        </label>
+        <label>色
+            <select id="editor-color">
+                <option value="">なし</option><option value="blue">青</option>
+                <option value="red">赤</option><option value="yellow">黄</option>
+                <option value="green">緑</option><option value="other">その他</option>
+            </select>
+        </label>
+        <div class="editor-actions">
+            <button type="button" onclick="document.getElementById('ability-editor').close()">キャンセル</button>
+            <button id="editor-confirm" type="submit">保存</button>
+        </div>
+    </form>
+</dialog>
 
 <script src="script.js"></script>
 
